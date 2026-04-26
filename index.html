@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amr Ahmed Hassan — ML Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --bg: #0A0A0A;
+      --accent: #C8FF00;
+      --gray: #888;
+      --text: #F0F0F0;
+      --text-dim: rgba(240, 240, 240, 0.4);
+      --card-bg: #0F0F0F;
+      --card-border: rgba(255, 255, 255, 0.06);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+    ::selection {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      cursor: none;
+    }
+    @media (max-width: 768px) {
+      body { cursor: auto; }
+    }
+    /* Custom Cursor */
+    .cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transition: transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s, width 0.2s, height 0.2s;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+    }
+    .cursor.hover {
+      width: 50px;
+      height: 50px;
+      background: rgba(200, 255, 0, 0.08);
+      border-color: var(--accent);
+    }
+    .cursor-dot {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10001;
+      transform: translate(-50%, -50%);
+    }
+    @media (max-width: 768px) {
+      .cursor, .cursor-dot { display: none; }
+    }
+    /* Grain / Noise Overlay */
+    .grain {
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      animation: grain 0.8s steps(1) infinite;
+    }
+    @keyframes grain {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-2%, -3%); }
+      20% { transform: translate(3%, 1%); }
+      30% { transform: translate(-1%, 3%); }
+      40% { transform: translate(2%, -2%); }
+      50% { transform: translate(-3%, 1%); }
+      60% { transform: translate(1%, -1%); }
+      70% { transform: translate(-2%, 2%); }
+      80% { transform: translate(3%, -3%); }
+      90% { transform: translate(-1%, -2%); }
+    }
+    /* Scanlines */
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9997;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+    }
+    /* Navigation */
+    .nav {
+      position: fixed;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      text-decoration: none;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      padding: 6px 0;
+    }
+    .nav-link span {
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .nav-link::before {
+      content: '';
+      display: block;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      margin-right: 0;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+    }
+    .nav-link:hover span {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .nav-link:hover::before {
+      width: 20px;
+      margin-right: 10px;
+    }
+    .nav-link.active {
+      color: var(--accent);
+    }
+    .nav-link.active::before {
+      width: 20px;
+      margin-right: 10px;
+    }
+    @media (max-width: 768px) {
+      .nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        transform: none;
+        flex-direction: row;
+        justify-content: center;
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 16px;
+        border-top: 1px solid var(--card-border);
+        gap: 0;
+      }
+      .nav-link {
+        flex-direction: column;
+        justify-content: center;
+        padding: 8px 16px;
+      }
+      .nav-link span { display: none; }
+      .nav-link::before { display: none; }
+    }
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .hero { padding: 0 24px; padding-top: 80px; }
+    }
+    .hero-bg-text {
+      position: absolute;
+      font-family: var(--mono);
+      font-size: clamp(120px, 20vw, 320px);
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.02);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.05em;
+    }
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards;
+    }
+    .hero-terminal {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .terminal-prompt {
+      font-family: var(--mono);
+      font-size: clamp(16px, 2vw, 22px);
+      color: var(--accent);
+      opacity: 0;
+      animation: fadeIn 0.5s ease 1.2s forwards;
+      padding-top: 4px;
+    }
+    .hero-typing-wrap {
+      overflow: hidden;
+    }
+    .hero-title {
+      font-family: var(--mono);
+      font-size: clamp(32px, 6vw, 80px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .hero-title .typed-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.85em;
+      background: var(--accent);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .hero-tagline {
+      font-size: clamp(16px, 2vw, 24px);
+      font-weight: 300;
+      color: var(--gray);
+      margin-top: 16px;
+      margin-bottom: 48px;
+      font-style: italic;
+      opacity: 0;
+      animation: fadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 4s forwards;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 40px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      opacity: 0;
+      animation: fadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 4.5s forwards;
+    }
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--accent);
+      transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: -1;
+    }
+    .hero-cta:hover {
+      color: var(--bg);
+    }
+    .hero-cta:hover::before {
+      left: 0;
+    }
+    .hero-cta svg {
+      transition: transform 0.3s;
+    }
+    .hero-cta:hover svg {
+      transform: translateY(3px);
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    /* Section common */
+    section {
+      padding: 120px 80px;
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      section { padding: 80px 24px; }
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .section-label::before {
+      content: '';
+      width: 30px;
+      height: 1px;
+      background: var(--accent);
+    }
+    .section-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      position: absolute;
+      right: 80px;
+      top: 120px;
+      letter-spacing: 0.2em;
+    }
+    @media (max-width: 768px) {
+      .section-number { right: 24px; top: 80px; }
+    }
+    /* Reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+    /* About */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      margin-top: 60px;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; gap: 48px; }
+    }
+    .about-bio h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 32px;
+    }
+    .about-bio h2 .accent {
+      color: var(--accent);
+    }
+    .about-bio p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--gray);
+      max-width: 480px;
+    }
+    .about-bio p + p {
+      margin-top: 16px;
+    }
+    .about-bio p em {
+      color: var(--text);
+      font-style: normal;
+    }
+    .code-block {
+      background: #0D0D0D;
+      border: 1px solid var(--card-border);
+      padding: 32px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.8;
+      position: relative;
+      overflow: hidden;
+    }
+    .code-block::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    .code-line {
+      display: flex;
+      gap: 12px;
+    }
+    .code-line-num {
+      color: var(--text-dim);
+      user-select: none;
+      min-width: 20px;
+      text-align: right;
+    }
+    .code-key { color: #ff79c6; }
+    .code-string { color: #f1fa8c; }
+    .code-bracket { color: var(--gray); }
+    .code-comma { color: var(--gray); }
+    .code-value { color: #8be9fd; }
+    /* Projects */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1.2fr;
+      gap: 24px;
+      margin-top: 60px;
+    }
+    @media (max-width: 1024px) {
+      .projects-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      background: var(--accent);
+      transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .project-card:hover::before {
+      width: 3px;
+    }
+    .project-card:hover {
+      border-color: rgba(200, 255, 0, 0.15);
+      transform: translateY(-4px);
+    }
+    .project-index {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.2em;
+      margin-bottom: 24px;
+    }
+    .project-name {
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .project-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 24px;
+    }
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .project-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 4px 10px;
+      border: 1px solid var(--card-border);
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      transition: all 0.3s;
+    }
+    .project-card:hover .project-tag {
+      border-color: rgba(200, 255, 0, 0.2);
+      color: var(--accent);
+    }
+    .project-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .project-card:hover .project-link {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Skills */
+    .skills-section {
+      overflow: hidden;
+    }
+    .marquee-container {
+      overflow: hidden;
+      margin-top: 60px;
+      margin-bottom: 60px;
+      position: relative;
+    }
+    .marquee-container::before,
+    .marquee-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 120px;
+      z-index: 2;
+    }
+    .marquee-container::before {
+      left: 0;
+      background: linear-gradient(90deg, var(--bg), transparent);
+    }
+    .marquee-container::after {
+      right: 0;
+      background: linear-gradient(270deg, var(--bg), transparent);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      animation: marquee 20s linear infinite;
+      width: max-content;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      font-family: var(--mono);
+      font-size: clamp(40px, 6vw, 80px);
+      font-weight: 700;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--text-dim);
+      white-space: nowrap;
+      padding: 0 40px;
+      transition: all 0.3s;
+      cursor: default;
+    }
+    .marquee-item:hover {
+      color: var(--accent);
+      -webkit-text-stroke: 1px var(--accent);
+    }
+    .marquee-sep {
+      color: var(--accent);
+      font-size: clamp(40px, 6vw, 80px);
+      font-weight: 700;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+    }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .skills-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    }
+    .skill-item {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .skill-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .skill-dots {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .skill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--card-border);
+    }
+    .skill-dot.filled {
+      background: var(--accent);
+    }
+    .skill-item:hover .skill-name {
+      color: var(--accent);
+    }
+    .skill-item:hover .skill-dot.filled {
+      box-shadow: 0 0 8px var(--accent);
+    }
+    /* Education */
+    .edu-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 36px;
+      margin-top: 60px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .edu-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    .edu-card:hover {
+      border-color: rgba(200, 255, 0, 0.15);
+    }
+    .edu-degree {
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .edu-meta {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .edu-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 12px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .edu-info {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+    .cert-list {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .cert-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+    }
+    .cert-item::before {
+      content: '▸';
+      color: var(--accent);
+      font-size: 10px;
+    }
+    /* Contact */
+    .contact {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .contact-cta {
+      font-size: clamp(36px, 7vw, 100px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-top: 32px;
+      margin-bottom: 64px;
+    }
+    .contact-cta .line {
+      display: block;
+    }
+    .contact-cta .line .accent {
+      color: var(--accent);
+    }
+    .contact-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--gray);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .contact-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+    .contact-link:hover {
+      color: var(--accent);
+    }
+    .contact-link:hover::after {
+      width: 100%;
+    }
+    .contact-link svg {
+      width: 20px;
+      height: 20px;
+    }
+    .contact-email {
+      font-family: var(--mono);
+      font-size: clamp(14px, 1.5vw, 18px);
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      margin-bottom: 48px;
+      transition: color 0.3s;
+    }
+    .contact-email:hover {
+      color: var(--accent);
+    }
+    /* Footer */
+    .footer {
+      padding: 32px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--card-border);
+    }
+    @media (max-width: 768px) {
+      .footer { padding: 24px; flex-direction: column; gap: 16px; }
+    }
+    .footer-text {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+    .footer-right {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .footer-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+    .glitch-num {
+      position: absolute;
+      right: 80px;
+      bottom: 80px;
+      font-family: var(--mono);
+      font-size: 200px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.015);
+      letter-spacing: -0.05em;
+      pointer-events: none;
+      user-select: none;
+    }
+    @media (max-width: 768px) {
+      .glitch-num { font-size: 100px; right: 24px; bottom: 120px; }
+    }
+    .deco-line {
+      position: absolute;
+      left: 80px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, var(--card-border) 30%, var(--card-border) 70%, transparent);
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .deco-line { left: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="grain"></div>
+  <div class="scanlines"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <a href="#hero" class="nav-link active"><span>Home</span></a>
+    <a href="#about" class="nav-link"><span>About</span></a>
+    <a href="#education" class="nav-link"><span>Education</span></a>
+    <a href="#skills" class="nav-link"><span>Skills</span></a>
+    <a href="#contact" class="nav-link"><span>Contact</span></a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="deco-line"></div>
+    <div class="hero-bg-text">AMR_</div>
+    <div class="glitch-num">01</div>
+    <div class="hero-eyebrow">// ML Engineer & AI Specialist</div>
+    <div class="hero-terminal">
+      <span class="terminal-prompt">$</span>
+      <h1 class="hero-title">
+        <span id="typedText"></span><span class="typed-cursor"></span>
+      </h1>
+    </div>
+    <p class="hero-tagline">I build intelligence into everything.</p>
+    <a href="#about" class="hero-cta">
+      Explore My Work
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+      </svg>
+    </a>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="section-number">02</div>
+    <div class="section-label reveal">About</div>
+    <div class="about-grid">
+      <div class="about-bio reveal reveal-delay-1">
+        <h2>Machine Learning as <span class="accent">craft</span>, data as <span class="accent">language</span>.</h2>
+        <p>
+          I'm Amr — an ML Engineer passionate about building <em>intelligent systems</em>
+          that solve real-world problems. I transform raw data into models that think,
+          predict, and adapt.
+        </p>
+        <p>
+          Currently a <em>Level 3 Computer Science student</em> with a Very Good standing,
+          I blend strong academic foundations with hands-on AI experience. I'm driven by
+          curiosity, an <em>AI-first mindset</em>, and a relentless drive to learn.
+        </p>
+      </div>
+      <div class="code-block reveal reveal-delay-2">
+        <div class="code-line"><span class="code-line-num">1</span><span class="code-bracket">{</span></div>
+        <div class="code-line"><span class="code-line-num">2</span>  <span class="code-key">"name"</span><span class="code-bracket">:</span> <span class="code-string">"Amr Ahmed Hassan Mahmoud"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">3</span>  <span class="code-key">"role"</span><span class="code-bracket">:</span> <span class="code-string">"ML Engineer"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">4</span>  <span class="code-key">"focus"</span><span class="code-bracket">:</span> <span class="code-string">"AI that changes the world"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">5</span>  <span class="code-key">"stack"</span><span class="code-bracket">:</span> <span class="code-bracket">[</span></div>
+        <div class="code-line"><span class="code-line-num">6</span>    <span class="code-value">"Python"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">7</span>    <span class="code-value">"C++"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">8</span>    <span class="code-value">"Machine Learning"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">9</span>    <span class="code-value">"Deep Learning"</span></div>
+        <div class="code-line"><span class="code-line-num">10</span>  <span class="code-bracket">]</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">11</span>  <span class="code-key">"mindset"</span><span class="code-bracket">:</span> <span class="code-string">"AI-first thinker"</span><span class="code-comma">,</span></div>
+        <div class="code-line"><span class="code-line-num">12</span>  <span class="code-key">"status"</span><span class="code-bracket">:</span> <span class="code-string">"Open to opportunities"</span></div>
+        <div class="code-line"><span class="code-line-num">13</span><span class="code-bracket">}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section id="education">
+    <div class="section-number">03</div>
+    <div class="section-label reveal">Education & Certificates</div>
+
+    <div class="edu-card reveal reveal-delay-1">
+      <div class="edu-degree">Computer Science — Bachelor's Degree</div>
+      <div class="edu-meta">
+        <span class="edu-badge">Level 3</span>
+        <span class="edu-badge">Very Good</span>
+        <span class="edu-info">// Currently Enrolled</span>
+      </div>
+
+      <div class="cert-list">
+        <div class="cert-item">AI Mindset — Course Completed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section id="skills" class="skills-section">
+    <div class="section-number">04</div>
+    <div class="section-label reveal">Skills</div>
+    <div class="marquee-container">
+      <div class="marquee-track">
+        <span class="marquee-item">Python</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">C++</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Problem Solving</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Leadership</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Communication</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">AI Mindset</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Python</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">C++</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Problem Solving</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Leadership</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">Communication</span><span class="marquee-sep">/</span>
+        <span class="marquee-item">AI Mindset</span><span class="marquee-sep">/</span>
+      </div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-item reveal reveal-delay-1">
+        <span class="skill-name">Python</span>
+        <div class="skill-dots">
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+        </div>
+      </div>
+      <div class="skill-item reveal reveal-delay-2">
+        <span class="skill-name">C++</span>
+        <div class="skill-dots">
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot"></span>
+        </div>
+      </div>
+      <div class="skill-item reveal reveal-delay-3">
+        <span class="skill-name">Problem Solving</span>
+        <div class="skill-dots">
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+        </div>
+      </div>
+      <div class="skill-item reveal reveal-delay-1">
+        <span class="skill-name">Communication</span>
+        <div class="skill-dots">
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+        </div>
+      </div>
+      <div class="skill-item reveal reveal-delay-2">
+        <span class="skill-name">Leadership</span>
+        <div class="skill-dots">
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot"></span>
+        </div>
+      </div>
+      <div class="skill-item reveal reveal-delay-3">
+        <span class="skill-name">Work Under Pressure</span>
+        <div class="skill-dots">
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+          <span class="skill-dot filled"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="contact">
+    <div class="section-number">05</div>
+    <div class="section-label reveal">Contact</div>
+    <h2 class="contact-cta reveal reveal-delay-1">
+      <span class="line">Let's build</span>
+      <span class="line"><span class="accent">something.</span></span>
+    </h2>
+    <a href="mailto:amrahmedhassan841@gmail.com" class="contact-email reveal reveal-delay-2">amrahmedhassan841@gmail.com</a>
+    <div class="contact-links reveal reveal-delay-3">
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span class="footer-text">© 2026 Amr Ahmed Hassan Mahmoud. All rights reserved.</span>
+    <div class="footer-right">
+      <span class="footer-text">Built with code & ambition</span>
+      <span class="footer-dot"></span>
+      <span class="footer-text">ML Engineer</span>
+    </div>
+  </footer>
+
+  <script>
+    // ===== Custom Cursor =====
+    const cursor = document.getElementById('cursor');
+    const cursorDot = document.getElementById('cursorDot');
+    let cursorX = 0, cursorY = 0;
+    let dotX = 0, dotY = 0;
+    document.addEventListener('mousemove', (e) => {
+      cursorX = e.clientX;
+      cursorY = e.clientY;
+    });
+    function animateCursor() {
+      dotX += (cursorX - dotX) * 0.85;
+      dotY += (cursorY - dotY) * 0.85;
+      cursor.style.left = cursorX + 'px';
+      cursor.style.top = cursorY + 'px';
+      cursorDot.style.left = dotX + 'px';
+      cursorDot.style.top = dotY + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+    document.querySelectorAll('[data-cursor="hover"], a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
+    // ===== Typing Effect =====
+    const typedText = document.getElementById('typedText');
+    const phrases = ['Hello, World.', "I'm Amr Ahmed."];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typeSpeed = 100;
+    function typeEffect() {
+      const current = phrases[phraseIndex];
+      if (!isDeleting) {
+        typedText.textContent = current.substring(0, charIndex + 1);
+        charIndex++;
+        if (charIndex === current.length) {
+          isDeleting = true;
+          typeSpeed = 400;
+        }
+      } else {
+        typedText.textContent = current.substring(0, charIndex - 1);
+        charIndex--;
+        if (charIndex === 0) {
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          typeSpeed = 500;
+        }
+      }
+      setTimeout(typeEffect, typeSpeed);
+    }
+    setTimeout(typeEffect, 2000);
+
+    // ===== IntersectionObserver for reveal =====
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // ===== Active nav on scroll =====
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    function updateNav() {
+      let current = '';
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 3 && rect.bottom >= window.innerHeight / 3) {
+          current = section.getAttribute('id');
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    }
+    window.addEventListener('scroll', updateNav, { passive: true });
+
+    // ===== Parallax for hero bg text =====
+    const heroBgText = document.querySelector('.hero-bg-text');
+    const glitchNum = document.querySelector('.glitch-num');
+    window.addEventListener('scroll', () => {
+      const scroll = window.pageYOffset;
+      if (heroBgText) heroBgText.style.transform = `translate(-50%, calc(-50% + ${scroll * 0.15}px))`;
+      if (glitchNum) glitchNum.style.transform = `translateY(${scroll * 0.1}px)`;
+    }, { passive: true });
+  </script>
+</body>
+</html>
